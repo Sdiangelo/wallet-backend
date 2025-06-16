@@ -15,6 +15,7 @@ import com.example.fintech.wallet.exception.EmailYaRegistradoException;
 import com.example.fintech.wallet.exception.UsernameYaRegistradoException;
 import com.example.fintech.wallet.exception.CredencialesInvalidasException;
 import com.example.fintech.wallet.exception.UsuarioInactivoException;
+import com.example.fintech.wallet.security.JwtUtil;
 
 /**
  * Implementación de UsuarioService.
@@ -25,12 +26,13 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
-    // Aquí luego inyectaremos el componente para JWT
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
     /**
@@ -93,8 +95,15 @@ public class UsuarioServiceImpl implements UsuarioService {
             throw new UsuarioInactivoException("El usuario no está activo");
         }
 
-        // 4. Generar token JWT (lógica a implementar en la parte de seguridad)
-        String token = "JWT_TOKEN_AQUI"; // TODO: Generar JWT real
+        // 4. Generar token JWT real
+        org.springframework.security.core.userdetails.User userDetails =
+                new org.springframework.security.core.userdetails.User(
+                        usuario.getUsername(), usuario.getPassword(),
+                        java.util.Collections.singletonList(
+                                new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + usuario.getRol())
+                        )
+                );
+        String token = jwtUtil.generateToken(userDetails);
 
         // 5. Devolver DTO con el token
         return new JwtRespuestaDTO(token);
