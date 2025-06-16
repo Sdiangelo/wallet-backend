@@ -9,6 +9,10 @@ import com.example.fintech.wallet.repository.CuentaRepository;
 import com.example.fintech.wallet.repository.TransaccionRepository;
 import com.example.fintech.wallet.repository.UsuarioRepository;
 import com.example.fintech.wallet.service.TransaccionService;
+import com.example.fintech.wallet.exception.UsuarioNoEncontradoException;
+import com.example.fintech.wallet.exception.CuentaNoEncontradaException;
+import com.example.fintech.wallet.exception.FondosInsuficientesException;
+import com.example.fintech.wallet.exception.TransaccionNoPermitidaException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,22 +50,22 @@ public class TransaccionServiceImpl implements TransaccionService {
     public TransaccionRespuestaDTO transferir(String username, TransferenciaDTO transferenciaDTO) {
         // 1. Buscar usuario y cuenta origen
         Usuario usuarioOrigen = usuarioRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new UsuarioNoEncontradoException("Usuario no encontrado"));
         Cuenta cuentaOrigen = cuentaRepository.findByUsuario(usuarioOrigen)
-                .orElseThrow(() -> new RuntimeException("Cuenta de origen no encontrada"));
+                .orElseThrow(() -> new CuentaNoEncontradaException("Cuenta de origen no encontrada"));
 
         // 2. Buscar cuenta destino
         Cuenta cuentaDestino = cuentaRepository.findById(transferenciaDTO.getCuentaDestinoId())
-                .orElseThrow(() -> new RuntimeException("Cuenta de destino no encontrada"));
+                .orElseThrow(() -> new CuentaNoEncontradaException("Cuenta de destino no encontrada"));
 
         // 3. Validar que la cuenta destino no sea la misma que la origen
         if (cuentaOrigen.getId().equals(cuentaDestino.getId())) {
-            return crearTransaccionFallida(cuentaOrigen, cuentaDestino, transferenciaDTO.getMonto(), "No puedes transferir a tu propia cuenta");
+            throw new TransaccionNoPermitidaException("No puedes transferir a tu propia cuenta");
         }
 
         // 4. Validar fondos suficientes
         if (cuentaOrigen.getSaldo().compareTo(transferenciaDTO.getMonto()) < 0) {
-            return crearTransaccionFallida(cuentaOrigen, cuentaDestino, transferenciaDTO.getMonto(), "Fondos insuficientes");
+            throw new FondosInsuficientesException("Fondos insuficientes");
         }
 
         // 5. Realizar la transferencia
@@ -91,9 +95,9 @@ public class TransaccionServiceImpl implements TransaccionService {
     public List<TransaccionRespuestaDTO> obtenerHistorial(String username) {
         // 1. Buscar usuario y cuenta
         Usuario usuario = usuarioRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new UsuarioNoEncontradoException("Usuario no encontrado"));
         Cuenta cuenta = cuentaRepository.findByUsuario(usuario)
-                .orElseThrow(() -> new RuntimeException("Cuenta no encontrada"));
+                .orElseThrow(() -> new CuentaNoEncontradaException("Cuenta no encontrada"));
 
         // 2. Buscar transacciones donde la cuenta es origen o destino
         List<Transaccion> transacciones = transaccionRepository.findByCuentaOrigenOrCuentaDestino(cuenta, cuenta);

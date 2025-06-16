@@ -10,6 +10,11 @@ import com.example.fintech.wallet.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.example.fintech.wallet.exception.UsuarioNoEncontradoException;
+import com.example.fintech.wallet.exception.EmailYaRegistradoException;
+import com.example.fintech.wallet.exception.UsernameYaRegistradoException;
+import com.example.fintech.wallet.exception.CredencialesInvalidasException;
+import com.example.fintech.wallet.exception.UsuarioInactivoException;
 
 /**
  * Implementación de UsuarioService.
@@ -36,12 +41,10 @@ public class UsuarioServiceImpl implements UsuarioService {
     public UsuarioRespuestaDTO registrarUsuario(UsuarioRegistroDTO registroDTO) {
         // 1. Validar unicidad de email y username
         if (usuarioRepository.existsByEmail(registroDTO.getEmail())) {
-            // Excepción personalizada: Email ya registrado
-            throw new RuntimeException("El email ya está registrado"); // Reemplazar por EmailYaRegistradoException
+            throw new EmailYaRegistradoException("El email ya está registrado");
         }
         if (usuarioRepository.existsByUsername(registroDTO.getUsername())) {
-            // Excepción personalizada: Username ya registrado
-            throw new RuntimeException("El nombre de usuario ya está en uso"); // Reemplazar por UsernameYaRegistradoException
+            throw new UsernameYaRegistradoException("El nombre de usuario ya está en uso");
         }
 
         // 2. Cifrar la contraseña
@@ -78,16 +81,16 @@ public class UsuarioServiceImpl implements UsuarioService {
         // 1. Buscar usuario por username o email
         Usuario usuario = usuarioRepository.findByUsernameOrEmail(
                 loginDTO.getUsernameOrEmail(), loginDTO.getUsernameOrEmail())
-                .orElseThrow(() -> new RuntimeException("Usuario o contraseña incorrectos")); // Reemplazar por CredencialesInvalidasException
+                .orElseThrow(() -> new CredencialesInvalidasException("Usuario o contraseña incorrectos"));
 
         // 2. Verificar contraseña
         if (!passwordEncoder.matches(loginDTO.getPassword(), usuario.getPassword())) {
-            throw new RuntimeException("Usuario o contraseña incorrectos"); // Reemplazar por CredencialesInvalidasException
+            throw new CredencialesInvalidasException("Usuario o contraseña incorrectos");
         }
 
         // 3. Verificar estado activo
         if (!"activo".equalsIgnoreCase(usuario.getEstado())) {
-            throw new RuntimeException("El usuario no está activo"); // Reemplazar por UsuarioInactivoException
+            throw new UsuarioInactivoException("El usuario no está activo");
         }
 
         // 4. Generar token JWT (lógica a implementar en la parte de seguridad)
@@ -104,7 +107,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     public UsuarioRespuestaDTO obtenerUsuarioPorUsername(String username) {
         // 1. Buscar usuario por username
         Usuario usuario = usuarioRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado")); // Reemplazar por UsuarioNoEncontradoException
+                .orElseThrow(() -> new UsuarioNoEncontradoException("Usuario no encontrado"));
 
         // 2. Devolver DTO de respuesta
         UsuarioRespuestaDTO respuesta = new UsuarioRespuestaDTO();

@@ -6,6 +6,8 @@ import com.example.fintech.wallet.entity.Usuario;
 import com.example.fintech.wallet.repository.CuentaRepository;
 import com.example.fintech.wallet.repository.UsuarioRepository;
 import com.example.fintech.wallet.service.CuentaService;
+import com.example.fintech.wallet.exception.UsuarioNoEncontradoException;
+import com.example.fintech.wallet.exception.CuentaNoEncontradaException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,11 +36,11 @@ public class CuentaServiceImpl implements CuentaService {
     public BigDecimal consultarSaldoPorUsuario(String username) {
         // 1. Buscar usuario por username
         Usuario usuario = usuarioRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado")); // Reemplazar por UsuarioNoEncontradoException
+                .orElseThrow(() -> new UsuarioNoEncontradoException("Usuario no encontrado"));
 
         // 2. Buscar cuenta por usuario
         Cuenta cuenta = cuentaRepository.findByUsuario(usuario)
-                .orElseThrow(() -> new RuntimeException("Cuenta no encontrada")); // Reemplazar por CuentaNoEncontradaException
+                .orElseThrow(() -> new CuentaNoEncontradaException("Cuenta no encontrada"));
 
         // 3. Devolver saldo
         return cuenta.getSaldo();
@@ -51,11 +53,11 @@ public class CuentaServiceImpl implements CuentaService {
     public CuentaRespuestaDTO obtenerCuentaPorUsuario(String username) {
         // 1. Buscar usuario por username
         Usuario usuario = usuarioRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado")); // Reemplazar por UsuarioNoEncontradoException
+                .orElseThrow(() -> new UsuarioNoEncontradoException("Usuario no encontrado"));
 
         // 2. Buscar cuenta por usuario
         Cuenta cuenta = cuentaRepository.findByUsuario(usuario)
-                .orElseThrow(() -> new RuntimeException("Cuenta no encontrada")); // Reemplazar por CuentaNoEncontradaException
+                .orElseThrow(() -> new CuentaNoEncontradaException("Cuenta no encontrada"));
 
         // 3. Mapear a DTO y devolver
         CuentaRespuestaDTO dto = new CuentaRespuestaDTO();
