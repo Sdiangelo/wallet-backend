@@ -5,7 +5,9 @@ import com.example.fintech.wallet.dto.UsuarioLoginDTO;
 import com.example.fintech.wallet.dto.UsuarioRespuestaDTO;
 import com.example.fintech.wallet.dto.JwtRespuestaDTO;
 import com.example.fintech.wallet.entity.Usuario;
+import com.example.fintech.wallet.entity.Cuenta;
 import com.example.fintech.wallet.repository.UsuarioRepository;
+import com.example.fintech.wallet.repository.CuentaRepository;
 import com.example.fintech.wallet.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +18,7 @@ import com.example.fintech.wallet.exception.UsernameYaRegistradoException;
 import com.example.fintech.wallet.exception.CredencialesInvalidasException;
 import com.example.fintech.wallet.exception.UsuarioInactivoException;
 import com.example.fintech.wallet.security.JwtUtil;
+import java.math.BigDecimal;
 
 /**
  * Implementación de UsuarioService.
@@ -27,12 +30,14 @@ public class UsuarioServiceImpl implements UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final CuentaRepository cuentaRepository;
 
     @Autowired
-    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public UsuarioServiceImpl(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil, CuentaRepository cuentaRepository) {
         this.usuarioRepository = usuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.cuentaRepository = cuentaRepository;
     }
 
     /**
@@ -64,7 +69,17 @@ public class UsuarioServiceImpl implements UsuarioService {
         // 4. Guardar el usuario
         usuarioRepository.save(usuario);
 
-        // 5. Devolver DTO de respuesta
+        // 5. Crear la cuenta asociada con saldo inicial de 500
+        Cuenta cuenta = new Cuenta();
+        cuenta.setUsuario(usuario);
+        cuenta.setSaldo(BigDecimal.valueOf(500));
+        cuentaRepository.save(cuenta);
+
+        // 6. Asociar la cuenta al usuario y guardar (opcional, por bidireccionalidad)
+        usuario.setCuenta(cuenta);
+        usuarioRepository.save(usuario);
+
+        // 7. Devolver DTO de respuesta
         UsuarioRespuestaDTO respuesta = new UsuarioRespuestaDTO();
         respuesta.setId(usuario.getId());
         respuesta.setNombreCompleto(usuario.getNombreCompleto());
