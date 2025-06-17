@@ -21,19 +21,19 @@ import java.util.function.Function;
 @Component
 public class JwtUtil {
 
-    // Clave secreta inyectada desde application.properties
-    private final SecretKey key;
+    private SecretKey key;
+    private long expirationTime;
 
-    // Tiempo de expiración del token (por ejemplo, 24 horas)
-    private final long expirationTime;
-
-    public JwtUtil(
-            @Value("${jwt.secret}") String secret,
-            @Value("${jwt.expiration:86400000}") long expirationTime // valor por defecto: 24h en ms
-    ) {
+    @Value("${jwt.secret}")
+    private void setSecret(String secret) {
         this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
+
+    @Value("${jwt.expiration:86400000}")
+    private void setExpiration(long expirationTime) {
         this.expirationTime = expirationTime;
     }
+
 
     /**
      * Extrae el username (subject) del token JWT.
