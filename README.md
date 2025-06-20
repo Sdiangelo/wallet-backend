@@ -1,7 +1,6 @@
 # Wallet Bancaria - Proyecto Spring Boot + JWT
 
 Aplicación backend de ejemplo para gestión de usuarios, cuentas y transacciones bancarias, con seguridad JWT y roles (USER y ADMIN).  
-Ideal para portfolio de desarrollador backend.
 
 ---  
 ## 🚀 Tecnologías utilizadas  
