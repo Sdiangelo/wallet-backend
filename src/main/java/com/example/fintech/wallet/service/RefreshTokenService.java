@@ -28,7 +28,8 @@ public class RefreshTokenService {
     public String generateRandomToken() {
         return UUID.randomUUID().toString();
     }
-
+    
+    @Transactional
     public RefreshToken createRefreshToken(User user) {
         refreshTokenRepository.deleteByUser(user);
         RefreshToken refreshToken = new RefreshToken();
