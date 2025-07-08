@@ -1,7 +1,7 @@
 package com.example.fintech.wallet.service.impl;
 
-import com.example.fintech.wallet.entity.Usuario;
-import com.example.fintech.wallet.repository.UsuarioRepository;
+import com.example.fintech.wallet.entity.User;
+import com.example.fintech.wallet.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -20,21 +20,17 @@ import java.util.Collections;
 public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    private UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Usuario usuario = usuarioRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + username));
-
-        // Asignar el rol con el prefijo "ROLE_" (Spring Security lo requiere)
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
         Collection<? extends GrantedAuthority> authorities =
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + usuario.getRol()));
-
-        // Devolver un UserDetails con username, password y roles
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole()));
         return new org.springframework.security.core.userdetails.User(
-                usuario.getUsername(),
-                usuario.getPassword(),
+                user.getUsername(),
+                user.getPassword(),
                 authorities
         );
     }
