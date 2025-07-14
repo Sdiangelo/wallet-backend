@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: wallet
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/wallet_db?useSSL=false&serverTimezone=UTC
+    username: root
+    password: root
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  mail:
+    host: smtp.mailtrap.io
+    port: 2525
+    username: 38b6172e8edc47
+    password: fa489f6d8a111c
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    from: no-reply@wallet.com
+
+server:
+  port: 8080
+
+logging:
+  level:
+    org:
+      springframework:
+        web: DEBUG
+      springdoc: DEBUG
+
+log4j:
+  logger:
+    org:
+      springframework:
+        web: DEBUG 
+
+jwt:
+  secret: k8Jw2v7Qw1n9Zp3X5s6T8u2R4y7V0b1L3e5H8j2K4m6P9q1S3t5W7z9C0x2F4G6 
