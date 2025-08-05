@@ -4,18 +4,15 @@ import java.math.BigDecimal;
 
 public class TransferDTO {
 
-    private Long destinationAccountId;
-
-
+    private String toEmail;
     private BigDecimal amount;
 
-
-    public Long getDestinationAccountId() {
-        return destinationAccountId;
+    public String getToEmail() {
+        return toEmail;
     }
 
-    public void setDestinationAccountId(Long destinationAccountId) {
-        this.destinationAccountId = destinationAccountId;
+    public void setToEmail(String toEmail) {
+        this.toEmail = toEmail;
     }
 
     public BigDecimal getAmount() {

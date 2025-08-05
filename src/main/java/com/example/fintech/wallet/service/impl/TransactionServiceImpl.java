@@ -45,7 +45,9 @@ public class TransactionServiceImpl implements TransactionService {
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
         Account sourceAccount = accountRepository.findByUser(sourceUser)
                 .orElseThrow(() -> new AccountNotFoundException("Source account not found"));
-        Account destinationAccount = accountRepository.findById(transferDTO.getDestinationAccountId())
+        User destUser = userRepository.findByEmail(transferDTO.getToEmail())
+                .orElseThrow(() -> new UserNotFoundException("Destination user not found"));
+        Account destinationAccount = accountRepository.findByUser(destUser)
                 .orElseThrow(() -> new AccountNotFoundException("Destination account not found"));
         if (sourceAccount.getId().equals(destinationAccount.getId())) {
             throw new TransactionNotAllowedException("You cannot transfer to your own account");

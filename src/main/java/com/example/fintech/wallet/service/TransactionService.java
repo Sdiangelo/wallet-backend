@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface TransactionService {
 
-   
+    
     TransactionResponseDTO transfer(String username, TransferDTO transferDTO);
 
    
